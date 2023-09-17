@@ -1,6 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <pthread.h>
 #include "stopwatch.h"
+
+struct job {
+	size_t start_pos, end_pos;
+};
 
 void transpose(float *mat, size_t size)
 {
@@ -35,13 +40,12 @@ int main()
 {
 	//const int runs = 10;
 	const int sizes = 12;
+	const int threads = 16;
 	//double times[runs][sizes];
 
 	int n = 1;
-	printf("Size | Time\n");
-	for(int i = 1; i <= 1; i++) {
+	for(int i = 1; i <= sizes; i++) {
 		n *= 2;
-		n = 2048;
 		struct stopwatch sw;
 		float *A = malloc(n * n * sizeof(float));
 		float *B = malloc(n * n * sizeof(float));
@@ -64,6 +68,6 @@ int main()
 
 		double duration = stopwatch_elapsed(&sw);
 
-		printf("%4d | %f\n", n, duration);
+		printf("Size: %+4d\tTime: %f\n", n, duration);
 	}
 }
