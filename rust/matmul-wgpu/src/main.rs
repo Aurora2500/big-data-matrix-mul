@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 mod gpu;
-mod matrix;
 
 use gpu::GPU;
 

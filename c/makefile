@@ -3,7 +3,8 @@ src = $(progs:=.c)
 headers = stopwatch.h
 
 CC = clang
-FLAGS = -Wall -Wextra -Werror 
+FLAGS = -Wall -Wextra -Werror -O3
+LINKS = -lpthread -lm
 
 all: $(progs) 
 clean:
@@ -11,4 +12,4 @@ clean:
 
 
 %: %.c $(headers)
-	$(CC) $(FLAGS) -o $@ $<
+	$(CC) $(FLAGS) $(LINKS) -o $@ $<
