@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 mod gpu;
 
-use std::{sync::Arc, time::Duration};
+use std::sync::Arc;
 
 use gpu::{Gpu, Matrix};
 
@@ -12,31 +12,26 @@ fn main() {
 
 	let mut rng = rand::thread_rng();
 
-	let mut mat1 = Matrix::generate(Arc::clone(&gpu), 4096, |_, _| rng.gen());
-	let mut mat2 = Matrix::generate(Arc::clone(&gpu), 4096, |_, _| rng.gen());
+	let size = 5792;
+
+	let mut mat1 = Matrix::generate(Arc::clone(&gpu), size, |_, _| rng.gen());
+	let mut mat2 = Matrix::generate(Arc::clone(&gpu), size, |_, _| rng.gen());
+
+	let m_start = std::time::Instant::now();
 
 	mat1.move_to_gpu();
 	mat2.move_to_gpu();
-	let mut v = Vec::new();
 
-	println!("--- setup done ---");
+	let m_end = std::time::Instant::now();
 
-	for i in 0..30 {
-		std::thread::sleep(Duration::from_millis(900));
-		let start = std::time::Instant::now();
-		let _out_mat = &mat1 * &mat2;
-		let end = std::time::Instant::now();
-		let duration = (end - start).as_secs_f64();
-		println!("{i:>3}: {duration}");
-		v.push((end - start).as_secs_f32());
-	}
+	let m_duration = (m_end - m_start).as_secs_f64() / 2.0;
 
-	let mut sum = 0.0;
-	for i in v.iter() {
-		sum += i;
-	}
+	println!("--- setup done (took {m_duration:.3}s per matrix) ---");
 
-	sum /= v.len() as f32;
+	let start = std::time::Instant::now();
+	let _out_mat = &mat1 * &mat2;
+	let end = std::time::Instant::now();
+	let duration = (end - start).as_secs_f64();
 
-	println!("{}s", sum);
+	println!("duration: {duration:.4}s",);
 }

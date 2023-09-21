@@ -180,6 +180,55 @@ impl Matrix {
 		}
 	}
 
+	fn init_gpu_dirty(&mut self) {
+		if self.gpu_frame.is_some() {
+			return;
+		}
+
+		let buffer = self.gpu.device.create_buffer(&wgpu::BufferDescriptor {
+			label: Some("Matrix buffer"),
+			size: (self.size * self.size * std::mem::size_of::<f32>()) as u64,
+			usage: wgpu::BufferUsages::STORAGE
+				| wgpu::BufferUsages::COPY_SRC
+				| wgpu::BufferUsages::COPY_DST,
+			mapped_at_creation: false,
+		});
+		let size_buffer = self
+			.gpu
+			.device
+			.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+				label: Some("matrix size buffer"),
+				contents: bytemuck::cast_slice(&[self.size as u32]),
+				usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+			});
+		let bind_group = self
+			.gpu
+			.device
+			.create_bind_group(&wgpu::BindGroupDescriptor {
+				label: Some("matrix bind group"),
+				layout: &self.gpu.matrix_layout,
+				entries: &[
+					wgpu::BindGroupEntry {
+						binding: 0,
+						resource: size_buffer.as_entire_binding(),
+					},
+					wgpu::BindGroupEntry {
+						binding: 1,
+						resource: buffer.as_entire_binding(),
+					},
+				],
+			});
+
+		let frame = MatrixGPUFrame {
+			dirty: Dirty::GPUDirty,
+			size_buffer,
+			buffer,
+			bind_group,
+		};
+
+		self.gpu_frame = Some(frame);
+	}
+
 	pub fn move_to_cpu(&mut self) {
 		let buffer = match &mut self.gpu_frame {
 			None => return,
@@ -272,7 +321,7 @@ impl std::ops::Mul for &Matrix {
 			.as_ref()
 			.expect("Matrix must be loaded on the GPU");
 		let mut out = Matrix::zeros(Arc::clone(&self.gpu), self.size);
-		out.move_to_gpu();
+		out.init_gpu_dirty();
 		let out_frame = out.gpu_frame.as_ref().unwrap();
 		let mut encoder = self
 			.gpu
