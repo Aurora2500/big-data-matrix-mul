@@ -8,4 +8,5 @@ edition = "2021"
 [dependencies]
 bytemuck = "1.14.0"
 pollster = "0.3.0"
+rand = "0.8.5"
 wgpu = "0.17.0"
