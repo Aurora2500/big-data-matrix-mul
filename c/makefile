@@ -1,4 +1,4 @@
-progs = naive_matmul cache_matmul thread_matmul
+progs = naive_matmul cache_matmul threaded_matmul
 src = $(progs:=.c)
 headers = stopwatch.h
 
