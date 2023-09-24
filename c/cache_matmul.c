@@ -33,15 +33,13 @@ void matmul(float *out, float *a, float *b, size_t size)
 
 int main()
 {
-	//const int runs = 10;
 	const int sizes = 12;
-	//double times[runs][sizes];
 
+	printf("Size,Time\n");
+	fflush(stdout);
 	int n = 1;
-	printf("Size | Time\n");
-	for(int i = 1; i <= 1; i++) {
+	for(int i = 1; i <= sizes; i++) {
 		n *= 2;
-		n = 2048;
 		struct stopwatch sw;
 		float *A = malloc(n * n * sizeof(float));
 		float *B = malloc(n * n * sizeof(float));
@@ -64,6 +62,7 @@ int main()
 
 		double duration = stopwatch_elapsed(&sw);
 
-		printf("%4d | %f\n", n, duration);
+		printf("%d,%f\n", n, duration);
+		fflush(stdout);
 	}
 }

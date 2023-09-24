@@ -6,6 +6,8 @@ void matmul(float *out, float *a, float *b, size_t size)
 {
 	for (size_t row = 0; row < size; row++)
 	{
+		fprintf(stderr, "%zu / %zu\n", row, size);
+		fflush(stderr);
 		for (size_t col = 0; col < size; col++)
 		{
 			float s = 0;
@@ -21,12 +23,15 @@ void matmul(float *out, float *a, float *b, size_t size)
 int main(void)
 {
 	//const int runs = 10;
-	const int sizes = 11;
+	const int sizes = 12;
 	//double times[runs][sizes];
 
-	int n = 2048;
-	for(int i = 11; i <= sizes; i++) {
-		//n *= 2;
+	printf("Size,Time\n");
+	fflush(stdout);
+
+	int n = 1;
+	for(int i = 1; i <= sizes; i++) {
+		n *= 2;
 		struct stopwatch sw;
 		float *A = malloc(n * n * sizeof(float));
 		float *B = malloc(n * n * sizeof(float));
@@ -48,6 +53,7 @@ int main(void)
 
 		double duration = stopwatch_elapsed(&sw);
 
-		printf("Size: %-4d\tTime: %f\n", n, duration);
+		printf("%d,%f\n", n, duration);
+		fflush(stdout);
 	}
 }

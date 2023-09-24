@@ -162,37 +162,44 @@ void matmul(float *out, float *a, float *b, size_t size)
 
 int main()
 {
-	// const int runs = 10;
+	const int runs = 10;
 	const int sizes = 12;
 	// double times[runs][sizes];
+
+	printf("Size,Time\n");
+	fflush(stdout);
 
 	int n = 1;
 	for (int i = 1; i <= sizes; i++)
 	{
 		n *= 2;
-		struct stopwatch sw;
-		float *A = malloc(n * n * sizeof(float));
-		float *B = malloc(n * n * sizeof(float));
-		float *C = malloc(n * n * sizeof(float));
-		for (int i = 0; i < n; i++)
+		double duration = 0.0;
+		for (size_t k = 0; k < runs; k++)
 		{
-			for (int j = 0; j < n; j++)
+			struct stopwatch sw;
+			float *A = malloc(n * n * sizeof(float));
+			float *B = malloc(n * n * sizeof(float));
+			float *C = malloc(n * n * sizeof(float));
+			for (int i = 0; i < n; i++)
 			{
-				A[i + j * n] = rand() / RAND_MAX;
-				B[i + j * n] = rand() / RAND_MAX;
+				for (int j = 0; j < n; j++)
+				{
+					A[i + j * n] = rand() / RAND_MAX;
+					B[i + j * n] = rand() / RAND_MAX;
+				}
 			}
+
+			stopwatch_start(&sw);
+			transpose(B, n);
+			matmul(C, A, B, n);
+			stopwatch_stop(&sw);
+
+			// Prevent compiler from optimizing away the computation
+			asm volatile("" : : "g"(C) : "memory");
+
+			duration += stopwatch_elapsed(&sw) / runs;
 		}
-
-		stopwatch_start(&sw);
-		transpose(B, n);
-		matmul(C, A, B, n);
-		stopwatch_stop(&sw);
-
-		// Prevent compiler from optimizing away the computation
-		asm volatile("" : : "g"(C) : "memory");
-
-		double duration = stopwatch_elapsed(&sw);
-
-		printf("Size: %4d\tTime: %f\n", n, duration);
+		printf("%d,%f\n", n, duration);
+		fflush(stdout);
 	}
 }

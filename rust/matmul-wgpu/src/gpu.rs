@@ -380,3 +380,11 @@ impl Display for Matrix {
 		Ok(())
 	}
 }
+
+impl std::ops::Index<(usize, usize)> for Matrix {
+	type Output = f32;
+
+	fn index(&self, index: (usize, usize)) -> &Self::Output {
+		&self.data[index.0 as usize * self.size + index.1 as usize]
+	}
+}
