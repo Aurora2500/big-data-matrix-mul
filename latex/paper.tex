@@ -7,6 +7,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{lipsum}
+\usepackage{minted}
 
 \usepackage{titlesec}
 
@@ -73,6 +74,49 @@ The multiplication is implemented using list comprehension, which is more python
 given that they use more optimized code under the hood. Making it a more fair comparison to other languages.
 
 The code used is as follows:
+
+\begin{minted}[tabsize=2,baseline]{python}
+@dataclass
+class matrix:
+	buff: list[list[float]]
+	
+	@staticmethod
+	def random(n):
+		return matrix([
+			[
+				random.gauss(0, 1)
+				for _ in range(n)
+			]
+			for _ in range(n)
+		])
+	
+	@staticmethod
+	def eye(n):
+		return matrix([
+			[
+				1 if i == j else 0
+				for j in range(n)
+			]
+			for i in range(n)
+		])
+	
+	def __matmul__(self, other):
+		if len(self.buff[0]) != len(other.buff):
+			raise ValueError("Matrix dimensions do not match")
+		return matrix([
+			[
+				sum(a * b for a, b in zip(row, col))
+				for col
+				in zip(*other.buff)
+			]
+			for row
+			in self.buff
+		])
+	
+	def __repr__(self):
+		sep = ',\n' + ' ' * len('matrix([')
+		return f"matrix([{sep.join(map(str, self.buff))}])"
+\end{minted}
 
 \subsection{Java}
 
